@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>第一个首页</title>
+</head>
+<body>
+<h2>《第一个首页》</h2>
+姓名:{{ name }}<br>
+年龄:{{ age }}<br>
+爱好:{{ hobby }}<hr/>
+<p>
+   <h2>过滤器</h2>
+{{ name |default:'ssss' }}
+</p>
+{{ name|cut:"ss" }}
+{% include 'demo1.html' %}
+</body>
+</html>

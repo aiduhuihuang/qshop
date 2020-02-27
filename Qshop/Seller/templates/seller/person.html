@@ -1,0 +1,75 @@
+{% extends "seller/base.html" %}
+{% block title %}
+{{ person_tilet }}
+{% endblock %}
+{% block content %}
+<h1 class="h3 mb-0 text-gray-800">{{ person_tilet }}</h1>
+{#    水平线#}
+    <hr class="sidebar-divider">
+
+    <!--修改个人资料的表单-->
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+         <table cellpadding="0" cellspacing="0">
+            <tr>
+                <td rowspan="4" width="200px" height="300px">
+                    <img src="/static/{{ user_obj.picture }}" alt="" title="个人头像" width="200px" height="300px">
+                    <input type="file" name="img">
+                </td>
+                <th>邮箱:</th>
+                <td><input type="text" name="email" value="{{ user_obj.email }}" disabled></td>
+                <th>姓名:</th>
+                <td><input type="text" name="name" value="{{ user_obj.name }}"></td>
+                <th>出生日期</th>
+                <td><input type="date" name="birthday" value="{{ user_obj.birthday }}"></td>
+            </tr>
+             <tr>
+                <th>性别:</th>
+                <th>
+                    <select name="gender">
+                    {% if  user_obj.gender == 1 %}
+                            <option value="1" selected> 男 </option>
+                            <option value="0"> 女 </option>
+                    {% else %}
+                            <option value="0" selected> 女 </option>
+                        <option value="1" > 男 </option>
+                    {% endif %}
+                    </select>
+                </th>
+                <th>电话:</th>
+                <td><input type="text" name="tel" value="{{ user_obj.phone }}"></td>
+                 <th>年龄:</th>
+                <td><input type="text" name="age" value="{{ user_obj.age }}"></td>
+
+            </tr>
+             <tr>
+                <th>用户类型:</th>
+                <td>
+                    <select name="status" disabled>
+                        {% if user_obj.user_status == 1 %}
+                        <option value="1" selected> 卖家 </option>
+                            <option value="0"> 买家 </option>
+                            {% else %}
+                        <option value="0" selected> 买家 </option>
+                            <option value="1" > 卖家 </option>
+                        {% endif %}
+                    </select>
+                </td>
+                <th>创建时间:</th>
+                <td ><input type="text" name="createtime" value="{{ user_obj.createtime |date:"Y-m-d"}}"></td>
+                <th>地址:</th>
+                <td ><input type="text" name="address" value="{{ user_obj.address }}"></td>
+             </tr>
+         <tr >
+             <td style="text-align: center">
+                 <input  class="btn btn-primary" type="submit" value="修改个人信息">
+             </td>
+         </tr>
+         </table>
+    {#    水平线#}
+    <hr class="sidebar-divider">
+
+    </form>
+    {{ message }}
+{% endblock %}

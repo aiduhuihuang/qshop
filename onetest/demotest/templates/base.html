@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{% block title %}{% endblock %}</title>
+<meta name="keywords" content="个人博客,杜辉煌个人博客,个人博客模板,杨青" />
+<meta name="description" content="杜辉煌个人博客，是一个站在web前端设计之路的程序员个人网站，提供个人博客模板免费资源下载的个人原创网站。" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="/static/css/base.css" rel="stylesheet">
+<link href="/static/css/index.css" rel="stylesheet">
+<link href="/static/css/m.css" rel="stylesheet">
+{% block style %}{% endblock %}
+<!--[if lt IE 9]>
+<script src="js/modernizr.js"></script>
+<![endif]-->
+<script>
+window.onload = function ()
+{
+	var oH2 = document.getElementsByTagName("h2")[0];
+	var oUl = document.getElementsByTagName("ul")[0];
+	oH2.onclick = function ()
+	{
+		var style = oUl.style;
+		style.display = style.display == "block" ? "none" : "block";
+		oH2.className = style.display == "block" ? "open" : ""
+	}
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="tophead">
+    <div class="logo"><a href="/index/">杜辉煌个人博客</a></div>
+    <div id="mnav">
+      <h2><span class="navicon"></span></h2>
+      <ul>
+        <li><a href="/index/">网站首页</a></li>
+        <li><a href="/about/">关于我</a></li>
+        <li><a href="/share/">模板分享</a></li>
+        <li><a href="/list/">学无止境</a></li>
+        <li><a href="/info/">慢生活</a></li>
+        <li><a href="/gbook/">留言</a></li>
+      </ul>
+    </div>
+    <nav class="topnav" id="topnav">
+      <ul>
+        <li><a href="/index/">网站首页</a></li>
+        <li><a href="/about/">关于我</a></li>
+        <li><a href="/share/">模板分享</a></li>
+        <li><a href="/list/">学无止境</a></li>
+        <li><a href="/info/">慢生活</a></li>
+        <li><a href="/gbook/">留言</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+{% block content %}{% endblock %}
+<footer>
+  <p>Design by <a href="/">杜辉煌个人博客</a> <a href="/">蜀ICP备11002373号-1</a></p>
+</footer>
+<script src="/static/js/nav.js"></script>
+{% block script %}{% endblock %}
+</body>
+</html>

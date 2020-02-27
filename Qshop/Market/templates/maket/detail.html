@@ -1,0 +1,189 @@
+{% extends "maket/base.html" %}
+
+{% block title %}
+    商品详情
+{% endblock %}
+
+{% block contenttwo %}
+    	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="/static/maket/images/logo.png"></a>
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
+		<div class="guest_cart fr">
+			<a href="cart.html" class="cart_name fl">我的购物车</a>
+			<div class="goods_count fl" id="show_count">1</div>
+		</div>
+	</div>
+
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>
+				<span></span>
+				<ul class="subnav">
+					<li><a href="#" class="fruit">新鲜水果</a></li>
+					<li><a href="#" class="seafood">海鲜水产</a></li>
+					<li><a href="#" class="meet">猪牛羊肉</a></li>
+					<li><a href="#" class="egg">禽类蛋品</a></li>
+					<li><a href="#" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="#" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="#">全部分类</a>
+		<span>></span>
+		<a href="#">新鲜水果</a>
+		<span>></span>
+		<a href="#">商品详情</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl">
+            <img src="/static/{{g_obj.Goods_img }}" style="width: 100%;height: 100%">
+        </div>
+
+		<div class="goods_detail_list fr">
+                <h3>{{ g_obj.Goods_name }}</h3>
+			<p>{{ g_obj.Goods_des}}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em id="price">{{ g_obj.Goods_price }}</em></span>
+				<span class="show_unit">单  位：500g</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" id="nums" name="nums" oninput = "value=value.replace(/[^\d]/g,'')" class="num_show fl" value="1">
+					<a id="add" href="javascript:;" class="add fr">+</a>
+					<a id="redius" href="javascript:;" class="minus fr">-</a>
+				</div>
+			</div>
+			<div id="t_price"  class="total">总价：<em id="t">{{ g_obj.Goods_price }}</em></div>
+			<div class="operate_btn">
+				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+			</div>
+
+
+		</div>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+                    {% for foo in new_obj %}
+                    	<li>
+						<a href="/maket/detail/{{ foo.id }}/"><img src="/static/{{ foo.Goods_img }}"></a>
+						<h4><a href="/maket/detail/{{ foo.id }}/">{{ foo.Goods_name }}</a></h4>
+						<div class="prize">￥{{ foo.Goods_price }}</div>
+					</li>
+                    {% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li>评论</li>
+			</ul>
+
+			<div class="tab_content">
+				<dl>
+					<dt>商品详情：</dt>
+					<dd>{{ g_obj.Goods_info }} </dd>
+				</dl>
+			</div>
+
+		</div>
+	</div>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+	<script type="text/javascript">
+		var $add_x = $('#add_cart').offset().top;
+		var $add_y = $('#add_cart').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+		$('#add_cart').click(function(){
+			$(".add_jump").stop().animate({
+				'left': $to_y+7,
+				'top': $to_x+7},
+				"fast", function() {
+					$(".add_jump").fadeOut('fast',function(){
+						$('#show_count').html(2);
+					});
+
+			});
+		})
+	</script>
+
+    <!--实现加减法-->
+    <script>
+        $("#add").click(
+            function(){
+            var p=$("#nums").val()
+            var prcie=$("#price").text()
+                console.log(p)
+                console.log(prcie)
+            var r_url="http://127.0.0.1:8000/maket/ajax_add/?nums="+p+"&price="+prcie;
+            $.ajax({
+                url:r_url,
+                type:"get",
+                data:"",
+                success:function (data) {
+                    console.log(data)
+                    $("#nums").val(data["total"])
+                    $("#t").text(data["t_price"])
+
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            })
+        }
+        )
+       $("#redius").click(
+            function(){
+            var p=$("#nums").val()
+            var prcie=$("#price").text()
+                console.log(p)
+                console.log(prcie)
+            var r_url="http://127.0.0.1:8000/maket/ajax_redius/?nums="+p+"&price="+prcie;
+            $.ajax({
+                url:r_url,
+                type:"get",
+                data:"",
+                success:function (data) {
+                    console.log(data)
+                    $("#nums").val(data["total"])
+                    $("#t").text(data["t_price"])
+
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            })
+        }
+        )
+    </script>
+
+
+{% endblock %}
