@@ -22,6 +22,14 @@ urlpatterns = [
    re_path("detail/(?P<id>\d+)/",detail),
    path("ajax_add/",ajax_add),
    path("ajax_redius/",ajax_redius),
+   #立即购买订单
+   path("place_order/",placeorder),
+   #用户中心
+   path("user_center_info/",user_center_info),
+   #用户全部订单
+   path("user_center_order/",user_center_order),
+   #退出
+   path("loginout/",loginout),
 
 
 

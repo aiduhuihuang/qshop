@@ -12,27 +12,26 @@
 <body>
 	<div class="header_con">
 		<div class="header">
-			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div class="welcome fl">欢迎来到 天天生鲜</div>
 			<div class="fr">
-				<div class="login_info fl">
-					欢迎您：<em>张 山</em>
-				</div>
 				<div class="login_btn fl">
                     {% if  request.COOKIES.email %}
-                        欢迎您:&nbsp;<span>|</span> {{ request.COOKIES.email }}
+                        欢迎您:&nbsp;亲爱的<span>|</span> {{ request.COOKIES.email }} <span>|</span> <a href="/maket/loginout" style="color: red">退 出</a>
                     {% else %}
-                        <a href="/maket/login/">登录</a>
+                        <a href="/maket/login/" style="color: red">登录</a>
 					    <span>|</span>
-					    <a href="/maket/register/">注册</a>
+					    <a href="/maket/register/" style="color: red">注册</a>
                     {% endif %}
 				</div>
 				<div class="user_link fl">
 					<span>|</span>
-					<a href="user_center_info.html">用户中心</a>
+					<a href="/maket/user_center_info">用户中心</a>
 					<span>|</span>
-					<a href="cart.html">我的购物车</a>
+					<a href="/maket/cart/">我的购物车</a>
 					<span>|</span>
-					<a href="user_center_order.html">我的订单</a>
+					<a href="/maket/user_center_order/">我的订单</a>
+                    <span>|</span>
+					<a href="/maket/index/">回到首页</a>
 				</div>
 			</div>
 		</div>		
@@ -51,8 +50,8 @@
 			<span>|</span>
 			<a href="#">友情链接</a>		
 		</div>
-		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
-		<p>电话：010-****888    京ICP备*******8号</p>
+		<p>CopyRight © 2016 成都天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：028-****888    蜀ICP备*******8号</p>
 	</div>
 {% block script %}
 {% endblock %}

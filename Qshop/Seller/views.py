@@ -15,7 +15,7 @@ def setpassword(pwd):
 #登录装饰器
 def loginvalid(func):
     def inner(request,*args,**kwargs):
-        #根据登录设置的
+        #根据后台登录设置的
         c_email=request.COOKIES.get("selleremail")
         print(c_email)
         c_status=request.COOKIES.get("sellerstatus")
@@ -81,6 +81,7 @@ def ajax_pregister(request):
 
 
 #模板页面
+@loginvalid
 def base(request):
     return render(request, "seller/base.html")
 #用户登录
@@ -128,6 +129,7 @@ def index(request):
 #商品信息(路由在子路由LoginUser中)加载商品信息
 #分页用到的包
 from django.core.paginator import Paginator
+@loginvalid
 def goods_list(request,status=3,page=1):
     #返回到前端的一个标题值
     goods_title=""
@@ -149,6 +151,7 @@ def goods_list(request,status=3,page=1):
     return render(request, "seller/goods_list.html", locals())
 
 #商品的上架和下架功能实现,都是修改状态
+@loginvalid
 def goods_status(request,id,status):
     #找到这个数据
     # print(request.META["HTTP_REFERER"])#获取的是当前页面地址
@@ -163,6 +166,7 @@ def goods_status(request,id,status):
         return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 #修改商品
+@loginvalid
 def updategoods(request,id):
     #查询所有的供应商信息
     sup_obj=Supplier.objects.all()
@@ -205,6 +209,7 @@ def updategoods(request,id):
 
 
 #商品进货
+@loginvalid
 def goodsadd(request):
     good_titile="商品进货"
     #查出所有类型

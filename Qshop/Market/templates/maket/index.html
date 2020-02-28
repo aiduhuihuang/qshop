@@ -12,13 +12,13 @@
 
 {% block contenttwo %}
     <div class="search_bar clearfix">
-		<a href="index.html" class="logo fl"><img src="/static/maket/images/logo.png"></a>
+		<a href="/maket/index/" class="logo fl"><img src="/static/maket/images/logo.png"></a>
 		<div class="search_con fl">
 			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
 			<input type="button" class="input_btn fr" name="" value="搜索">
 		</div>
 		<div class="guest_cart fr">
-			<a href="#" class="cart_name fl">我的购物车</a>
+			<a href="/maket/cart/" class="cart_name fl">我的购物车</a>
 			<div class="goods_count fl" id="show_count">1</div>
 		</div>
 	</div>
@@ -63,7 +63,7 @@
     {% for foo in type_obj %}
         <div class="list_model">
 		<div class="list_title clearfix">
-			<h3 class="fl" id="model01">{{ foo.typename }}</h3>
+			<h3 class="fl" id="model0{{ foo.id }}">{{ foo.typename }}</h3>
 			<div class="subtitle fl">
 				<span>|</span>
 				<a href="#">鲜芒</a>
@@ -116,7 +116,7 @@
 		}
 
 		oFruit.onclick = function(){
-			window.location.href = 'list.html';
+			window.location.href = '/maket/list/';
 		}
 	</script>
 
