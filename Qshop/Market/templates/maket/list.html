@@ -9,8 +9,11 @@
 	<div class="search_bar clearfix">
 		<a href="/maket/index/" class="logo fl"><img src="/static/maket/images/logo.png"></a>
 		<div class="search_con fl">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
+            <form action="/maket/list/1/1/" method="post">
+                {% csrf_token  %}
+			<input type="text" class="input_text fl" name="search" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
 		</div>
 		<div class="guest_cart fr">
 			<a href="#" class="cart_name fl">我的购物车</a>
@@ -80,7 +83,8 @@
                         <div class="operate">
                             <span class="prize">￥{{ foo.Goods_price }}</span>
                             <span class="unit">{{ foo.Goods_price }}/500g</span>
-                            <a href="#" class="add_goods" title="加入购物车"></a>
+                            {#点击一次数量加1在购物车里面#}
+                            <a href="#" class="add_goods" id="{{ foo.id }}" onclick="addcart(this)" title="加入购物车"></a>
                         </div>
                     </li>
                         {% else %}
@@ -107,4 +111,33 @@
 			</div>
 		</div>
 	</div>
+{% endblock %}
+
+{#利用ajax实现购物车#}
+{% block script %}
+<script src="/static/js/jquery.min.js"></script>
+    <script>
+        function addcart(obj) {
+            var  goodsid=obj.id;
+            <!--ajax要进行的请求地址-->
+            var  url="/maket/add_cart/";
+            var send_data={"csrfmiddlewaretoken":"{{csrf_token}}","goods_id":goodsid};
+            $.ajax(
+                {
+                    url:url,
+                    type:"post",
+                    data:send_data,
+                    success:function (data) {
+                        console.log(data)
+                        alert("成功将商品【"+data["goods_name"]+"】添加至购物车")
+                    },
+                    error:function (error) {
+                        alert("添加不成功")
+                    }
+
+                }
+            )
+
+        }
+    </script>
 {% endblock %}

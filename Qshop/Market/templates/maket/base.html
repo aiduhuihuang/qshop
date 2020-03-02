@@ -15,8 +15,8 @@
 			<div class="welcome fl">欢迎来到 天天生鲜</div>
 			<div class="fr">
 				<div class="login_btn fl">
-                    {% if  request.COOKIES.email %}
-                        欢迎您:&nbsp;亲爱的<span>|</span> {{ request.COOKIES.email }} <span>|</span> <a href="/maket/loginout" style="color: red">退 出</a>
+                    {% if  request.COOKIES.maketemail %}
+                        欢迎您:&nbsp;亲爱的<span>|</span> {{ request.COOKIES.maketemail }} <span>|</span> <a href="/maket/loginout/" style="color: red">退 出</a>
                     {% else %}
                         <a href="/maket/login/" style="color: red">登录</a>
 					    <span>|</span>

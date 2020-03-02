@@ -17,7 +17,7 @@ class PayOrder(models.Model):
     order_staus = models.IntegerField(choices=ORDER_STATUS,verbose_name="订单状态")
     order_total = models.FloatField(verbose_name="订单总价")
     order_user = models.ForeignKey(to=LoginUser,to_field="email",on_delete=models.CASCADE,verbose_name="买家")
-    class Meta:
+    class Meta: 
         db_table = "pay_order"
         verbose_name_plural="订单表"
 
@@ -32,3 +32,13 @@ class OrderInfo(models.Model):
     class Meta:
         db_table = "order_info"
         verbose_name_plural="订单详情表"
+
+class Cart(models.Model):
+    goods = models.ForeignKey(to=Goods,on_delete=models.CASCADE)
+    goods_number = models.IntegerField(verbose_name="商品的数量")
+    goods_total = models.FloatField(verbose_name="商品的小计")
+    # goods_price = models.FloatField()
+    cart_user = models.ForeignKey(to=LoginUser,to_field="email",on_delete=models.CASCADE,verbose_name="买家")
+    class Meta:
+        db_table = "cart"
+        verbose_name_plural="购物车表"

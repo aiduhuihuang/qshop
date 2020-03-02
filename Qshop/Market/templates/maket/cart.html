@@ -9,14 +9,15 @@
 		<a href="/maket/index/" class="logo fl"><img src="/static/maket/images/logo.png"></a>
 		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;购物车</div>
 		<div class="search_con fr">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
+			 <form action="/maket/list/1/1/" method="post">
+                {% csrf_token  %}
+			<input type="text" class="input_text fl" name="search" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
 		</div>
 	</div>
 
 	<div class="total_count">全部商品<em>2</em>件</div>
-    <div class="cart_list_th">订单号:2309403290429340230230423 商品种类:3 类;数量:20   合计金额: $232.00 元
-    </div>
 	<ul class="cart_list_th clearfix">
 		<li class="col01">商品名称</li>
 		<li class="col02">商品单位</li>
@@ -25,45 +26,172 @@
 		<li class="col05">小计</li>
 		<li class="col06">操作</li>
 	</ul>
-	<ul class="cart_list_td clearfix">
-		<li class="col01"><input type="checkbox" name="" checked></li>
-		<li class="col02"><img src="/static/maket/images/goods/goods012.jpg"></li>
-		<li class="col03">奇异果<br><em>25.80元/500g</em></li>
+    {% for foo in c_obj %}
+        	<ul class="cart_list_td clearfix">
+		<li class="col01"><input type="checkbox" id="{{ foo.goods_id }}" name="" checked class="goodscheck"></li>
+		<li class="col02"><img src="/static/{{ foo.goods.Goods_img }}"></li>
+		<li class="col03">{{ foo.goods.Goods_name }}<br><em>{{ foo.goods.Goods_price }}元/500g</em></li>
 		<li class="col04">500g</li>
-		<li class="col05">25.80元</li>
+		<li class="col05">{{ foo.goods.Goods_price }}元</li>
 		<li class="col06">
 			<div class="num_add">
 				<a href="javascript:;" class="add fl">+</a>
-				<input type="text" class="num_show fl" value="1">
+				<input type="text" class="num_show fl" value="{{ foo.goods_number }}">
 				<a href="javascript:;" class="minus fl">-</a>
 			</div>
 		</li>
-		<li class="col07">25.80元</li>
+		<li class="col07">{{ foo.goods_total }}元</li>
 		<li class="col08"><a href="javascript:;">删除</a></li>
 	</ul>
-
-	<ul class="cart_list_td clearfix">
-		<li class="col01"><input type="checkbox" name="" checked></li>
-		<li class="col02"><img src="/static/maket/images/goods/goods003.jpg"></li>
-		<li class="col03">大兴大棚草莓<br><em>16.80元/500g</em></li>
-		<li class="col04">500g</li>
-		<li class="col05">16.80元</li>
-		<li class="col06">
-			<div class="num_add">
-				<a href="javascript:;" class="add fl">+</a>
-				<input type="text" class="num_show fl" value="1">
-				<a href="javascript:;" class="minus fl">-</a>
-			</div>
-		</li>
-		<li class="col07">16.80元</li>
-		<li class="col08"><a href="javascript:;">删除</a></li>
-	</ul>
-
+    {% endfor %}
 
 	<ul class="settlements">
-		<li class="col01"><input type="checkbox" name="" checked=""></li>
+		<li class="col01"><input type="checkbox" name="" checked="" id="check_box"></li>
 		<li class="col02">全选</li>
-		<li class="col03">合计(不含运费)：<span>¥</span><em>42.60</em><br>共计<b>2</b>件商品</li>
+		<li class="col03">合计(不含运费)：<span>¥</span><em id="goodsmoney">{{ total.totalmoney }}</em><br>共计数量 &nbsp;<b id="goodscount">{{ total.totalcount }}</b></li>
 		<li class="col04"><a href="place_order.html">去结算</a></li>
 	</ul>
+{% endblock %}
+
+{% block script %}
+    <script src="/static/js/jquery.min.js"></script>
+    <script>
+        //全选功能
+        $("#check_box").click(
+            function () {
+                //判断全选  是否有checked属性,有处理
+                if(this.checked){
+                    //增加属性
+                    $(".goodscheck").prop("checked",true)
+                }
+                else{
+                    $(".goodscheck").prop("checked",false)
+                }
+                add();
+            }
+
+        )
+
+        //通过单选控制全选框
+        $(".goodscheck").click(
+            function () {
+               //获取goodscheck长度
+                var l=$(".goodscheck").length
+                //获取goodscheck选中的长度
+                var rl=$(".goodscheck:checked").length
+                if (l == rl){
+                    $("#check_box").attr("checked",true)
+                }else {
+                    $("#check_box").attr("checked",false)
+                }
+                add();
+            }
+        )
+        //实现checkbox选中与否的变化值
+    function add() {
+        //声明一个变量存变化的值
+        var total={"goodscount":0,"goodsmoney":0};
+        //对这个空间循环
+        $(".goodscheck").each(
+            function () {
+                if(this.checked) {
+                    var num = parseInt($(this).parents(".cart_list_td").find(".num_show").val());
+                    var money=parseFloat($(this).parents(".cart_list_td").find(".col07").text());
+                    total.goodscount +=num;
+                    total.goodsmoney +=money;
+                }
+            }
+        )
+         $("#goodsmoney").text(total.goodsmoney);
+        $("#goodscount").text(total.goodscount);
+    }
+
+     //
+    //实现加号
+        //
+        //
+
+    //循环  ，在函数里面进行ajax请求
+    $(".add").click(
+        function () {
+            //获取了当前按钮的id
+            var id=$(this).parents(".cart_list_td").find(".goodscheck").attr("id");
+            //获取了num值
+             var num = parseInt($(this).parents(".cart_list_td").find(".num_show").val());
+            var  newnum=num+1;
+            //num的值+1,钱也要加
+            $(this).parents(".cart_list_td").find(".num_show").val(newnum);
+            var newtotal=parseInt(num+1)*parseFloat($(this).parents(".cart_list_td").find(".col05").text());
+            $(this).parents(".cart_list_td").find(".col07").text(newtotal+"元");
+            //调用add改变下面的值
+            add()
+            //进行ajax写入
+             <!--ajax要进行的请求地址-->
+            var  url="/maket/add_cart/";
+            //status 控制是从购物车的加减传过去的还是从其他页面的加入购物车按钮进去的
+            var send_data={"csrfmiddlewaretoken":"{{csrf_token}}","goods_id":id,"status":1,"goods_count":newnum,"goods_money":newtotal};
+            $.ajax(
+                {
+                    url:url,
+                    type:"post",
+                    data:send_data,
+                    success:function (data) {
+                    },
+                    error:function (error) {
+                        alert("添加不成功")
+                    }
+
+                }
+            )
+        }
+    )
+
+    //
+    //实现减号
+    //
+    //
+     $(".minus").click(
+        function () {
+            //获取了当前按钮的id
+            var id=$(this).parents(".cart_list_td").find(".goodscheck").attr("id");
+            //获取了num值
+             var num = parseInt($(this).parents(".cart_list_td").find(".num_show").val());
+            var  newnum=num-1;
+
+            //num的值-1,钱也要减,且只能减到1
+            if (newnum<=1){
+                 newnum=1;
+                 $(this).parents(".cart_list_td").find(".num_show").val(1);
+                var newtotal=parseInt(1)*parseFloat($(this).parents(".cart_list_td").find(".col05").text());
+                 $(this).parents(".cart_list_td").find(".col07").text(newtotal+"元");
+            }else{
+                $(this).parents(".cart_list_td").find(".num_show").val(newnum);
+                var newtotal=parseInt(newnum)*parseFloat($(this).parents(".cart_list_td").find(".col05").text());
+                 $(this).parents(".cart_list_td").find(".col07").text(newtotal+"元");
+            }
+            //调用add改变下面的值
+            add()
+            //进行ajax写入
+             <!--ajax要进行的请求地址-->
+            var  url="/maket/add_cart/";
+            //status 控制是从购物车的加减传过去的还是从其他页面的加入购物车按钮进去的
+            var send_data={"csrfmiddlewaretoken":"{{csrf_token}}","goods_id":id,"status":1,"goods_count":newnum,"goods_money":newtotal};
+            $.ajax(
+                {
+                    url:url,
+                    type:"post",
+                    data:send_data,
+                    success:function (data) {
+                        {#console.log(data)#}
+                        {#alert("成功将商品【"+data["goods_name"]+"】添加至购物车")#}
+                    },
+                    error:function (error) {
+                        alert("添加不成功")
+                    }
+
+                }
+            )
+        }
+    )
+    </script>
 {% endblock %}

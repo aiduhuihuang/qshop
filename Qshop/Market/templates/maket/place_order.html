@@ -9,8 +9,11 @@
 		<a href="/maket/index/" class="logo fl"><img src="/static/maket/images/logo.png"></a>
 		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;提交订单</div>
 		<div class="search_con fr">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
+			 <form action="/maket/list/1/1/" method="post">
+                {% csrf_token  %}
+			<input type="text" class="input_text fl" name="search" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
 		</div>
 	</div>
 
@@ -80,20 +83,15 @@
 {% endblock %}
 
 {% block script %}
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
     <script type="text/javascript">
-		$('#order_btn').click(function() {
-			localStorage.setItem('order_finish',2);
-
-			$('.popup_con').fadeIn('fast', function() {
-
-				setTimeout(function(){
-					$('.popup_con').fadeOut('fast',function(){
-						window.location.href = '/maket/index/';
-					});
-				},3000)
-
-			});
-		});
+		$('#order_btn').click(
+		    function() {
+			var pay_id={{ order_obj.id }};
+            var url="/maket/alipay_order/?pay_id="+pay_id;
+            window.location.href=url;
+		}
+		);
 	</script>
 
 {% endblock %}

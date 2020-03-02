@@ -8,11 +8,14 @@
     	<div class="search_bar clearfix">
 		<a href="/maket/index/" class="logo fl"><img src="/static/maket/images/logo.png"></a>
 		<div class="search_con fl">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
+			 <form action="/maket/list/1/1/" method="post">
+                {% csrf_token  %}
+			<input type="text" class="input_text fl" name="search" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
 		</div>
 		<div class="guest_cart fr">
-			<a href="cart.html" class="cart_name fl">我的购物车</a>
+			<a href="/maket/cart/" class="cart_name fl">我的购物车</a>
 			<div class="goods_count fl" id="show_count">1</div>
 		</div>
 	</div>
@@ -72,7 +75,7 @@
 			<div id="t_price"  class="total">总价：<em id="t">{{ g_obj.Goods_price }}</em></div>
 			<div class="operate_btn">
 				<a id="just_buy" href="javascript:;" class="buy_btn">立即购买</a>
-				<a id="join_in" href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+				<a id="join_in" href="javascript:;" class="add_cart" id="add_cart" onclick="addcart()">加入购物车</a>
 			</div>
 
 
@@ -191,6 +194,31 @@
             window.location.href="/maket/place_order/?goodsid="+id+"&nums="+nums
         }
     )
+
+    {#加入购物车#}
+        function addcart(obj) {
+            var goods_count=$("#nums").val()
+            var  goodsid={{ g_obj.id }};
+            <!--ajax要进行的请求地址-->
+            var  url="/maket/add_cart/";
+            var send_data={"csrfmiddlewaretoken":"{{csrf_token}}","goods_id":goodsid,"goods_count":goods_count};
+            $.ajax(
+                {
+                    url:url,
+                    type:"post",
+                    data:send_data,
+                    success:function (data) {
+                        console.log(data)
+                        alert("成功将商品【"+data["goods_name"]+"】添加至购物车")
+                    },
+                    error:function (error) {
+                        alert("添加不成功")
+                    }
+
+                }
+            )
+
+        }
     </script>
 
 

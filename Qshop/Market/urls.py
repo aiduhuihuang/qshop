@@ -31,6 +31,13 @@ urlpatterns = [
    #退出
    path("loginout/",loginout),
 
+   #提交订单后到付款页面
+   path("alipay_order/",alipay_order),
+
+   #回调处理结果
+   path("payresult/",pay_result),
+   path("add_cart/",add_cart),
+
 
 
 ]

@@ -61,11 +61,8 @@ def ajax_register(request):
 def login(request):
     if request.method=="POST":
         u_name=request.POST.get("username")
-        print(u_name)
         u_pwd=request.POST.get("pwd")
-        print(setpassword(u_pwd))
         user_obj=LoginUser.objects.filter(email=u_name,password=setpassword(u_pwd),user_status=0).first()
-        print(user_obj)
         if user_obj:
             name = user_obj.name
             response=HttpResponseRedirect("/maket/index/")
@@ -98,11 +95,6 @@ def index(request):
     #查询类型
     type_obj=Types.objects.all()
     return render(request,"maket/index.html",locals())
-
-#购物车
-def cart(request):
-
-    return render(request,"maket/cart.html")
 
 #订单详情
 @loginvalid
@@ -141,8 +133,11 @@ def ajax_redius(request):
 #商品列表
 @loginvalid
 def list(request,id,page=1):#用post方法来区别搜索商品
-    print(id)
-    good_obj=Goods.objects.filter(types_id=id).order_by("Goods_pro_date").all()
+    if request.method=="POST":
+        goods_search=request.POST.get("search")
+        good_obj=Goods.objects.filter(Goods_name__icontains=goods_search).all()
+    else:
+        good_obj=Goods.objects.filter(types_id=id).order_by("Goods_pro_date").all()
     if good_obj:
         paginator = Paginator(good_obj, 10)
         page_obj = paginator.page(page)
@@ -162,14 +157,13 @@ def placeorder(request):
     goods_obj = Goods.objects.get(id=id)
     order_obj = PayOrder()
     #如果商品id和卖家一样 都存在说明买的是同一个订单中的商品 且是未支付
-    oinfo_obj = OrderInfo.objects.filter(goods_id=int(id),store_id=goods_obj.user_id).first()
+    oinfo_obj = OrderInfo.objects.filter(goods=goods_obj,store_id=goods_obj.user_id).first()
     #判断合并条件是否符合
     if oinfo_obj and oinfo_obj.order.order_staus==1:
         #修改商品
         oinfo_obj.goods_count = int(oinfo_obj.goods_count)+int(nums)
-        oinfo_obj.store_id=email
+        oinfo_obj.store_id=goods_obj.user_id #卖家
         oinfo_obj.goods_total_price=float(oinfo_obj.goods_total_price)+float(goods_obj.Goods_price)*int(nums)
-        print(oinfo_obj.goods_total_price)
         oinfo_obj.save()
         #修改订单
         order_obj=PayOrder.objects.filter(id=oinfo_obj.order_id).first()
@@ -200,6 +194,38 @@ def placeorder(request):
         oinfo_obj.save()
     return render(request,"maket/place_order.html",locals())
 
+#支付宝付款码的生成
+from Qshop.settings import alipay
+def alipay_order(request):
+    pay_id=request.GET.get("pay_id")
+    print(pay_id)
+    pay_obj=PayOrder.objects.get(id=int(pay_id))
+    if pay_obj:
+        #实例一个订单
+        order_string = alipay.api_alipay_trade_page_pay(
+            subject="食品交易",  ## 主题
+            out_trade_no=pay_obj.order_number,  ## 订单号
+            total_amount=str(pay_obj.order_total),  ## 交易金额   字符串
+            return_url="http://127.0.0.1:8000/maket/payresult/",  ##  回调的地址
+            notify_url=None  ## 通知
+        )
+    #返回支付宝url
+        result="https://openapi.alipaydev.com/gateway.do?"+order_string
+        return  HttpResponseRedirect(result)
+    else:
+        return HttpResponseRedirect("/maket/index/")
+
+#接受支付宝的回调地址处理结果
+## 接收支付宝的支付结果
+def pay_result(request):
+    out_trade_no = request.GET.get("out_trade_no")
+    ## 修改订单的状态  未付款 -》 已付款
+    if out_trade_no:
+        p_obj = PayOrder.objects.get(order_number=out_trade_no)
+        p_obj.order_staus=2  #修改订单状态
+        p_obj.save()
+        return render(request,"maket/payresult.html",locals())
+
 #用户中心
 def user_center_info(request):
 
@@ -209,3 +235,51 @@ def user_center_info(request):
 def user_center_order(request):
 
     return  render(request,"maket/user_center_order.html")
+
+#购物车#找到属于自己的购物车
+def cart(request):
+    user_obj=LoginUser.objects.filter(email=request.COOKIES.get("maketemail")).first()
+    total={"yunfei":10,"totalcount":0,"totalmoney":0}
+    c_obj=Cart.objects.filter(cart_user=user_obj).all()
+    #取值运费和总数量和总的金额以及统计商品类型,数量总数
+    if c_obj:
+        for i in c_obj:
+            total["totalcount"]+=int(i.goods_number)
+            total["totalmoney"]+=float(i.goods_total)
+    return render(request,"maket/cart.html",locals())
+
+#增加购物车数据
+def add_cart(request):
+    #数据格式
+    result={"code":10000,"msg":"添加商品成功","goods_name":""}
+    goods_id=request.POST.get("goods_id")
+    goods_count=request.POST.get("goods_count")
+    goods_money=request.POST.get("goods_money")
+    status=request.POST.get("status")
+    user_email=request.COOKIES.get("maketemail")
+    #根据商品id查询商品信息
+    g_obj=Goods.objects.filter(id=goods_id).first()
+    l_obj=LoginUser.objects.filter(email=user_email).first()
+    if g_obj:
+        #查询是否已经存在在购物车里面了,存在就修改，不存在就增加
+        cart=Cart.objects.filter(cart_user=l_obj,goods=g_obj).first()
+        if cart:
+            if status=="1":
+                cart.goods_number=goods_count
+                print(goods_count)
+                cart.goods_total=goods_money
+                print(goods_money)
+            else:
+                cart.goods_number +=1
+                cart.goods_total=int(cart.goods_number)*float(g_obj.Goods_price)
+            cart.save()
+        else:
+            cart=Cart()
+            cart.goods= g_obj
+            cart.goods_number = goods_count
+            cart.goods_total=g_obj.Goods_price
+            cart.cart_user = l_obj
+            cart.save()
+        result["goods_name"]=g_obj.Goods_name
+        print(result)
+    return JsonResponse(result)
