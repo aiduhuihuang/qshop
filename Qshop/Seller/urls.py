@@ -21,4 +21,8 @@ urlpatterns = [
     #商品进货
     path("goodsadd/",goodsadd),
 
+    #订单管理
+    path("payorders/",payorders),
+    re_path("payorders/(?P<status>\d+)/",payorders),
+
 ]

@@ -22,9 +22,14 @@
 	<div class="common_list_con clearfix">
 		<dl>
 			<dt>寄送到：</dt>
-			<dd><input type="radio" name="" checked="">北京市 海淀区 东北旺西路8号中关村软件园 （李思 收） 182****7528</dd>
+            {% if ua_obj %}
+                <dd><input type="radio" name="" checked="">{{ ua_obj.addinfo }}&nbsp;&nbsp;({{ ua_obj.uname}} 收)&nbsp;&nbsp;{{ ua_obj.tel }}</dd>
+            {% else %}
+                <dd>还没有地址信息,请点击【编辑收货地址】进行地址编辑 </dd>
+
+            {% endif %}
 		</dl>
-		<a href="user_center_site.html" class="edit_site">编辑收货地址</a>
+		<a href="/maket/user_center_site/" class="edit_site">编辑收货地址</a>
 
 	</div>
 
@@ -70,7 +75,7 @@
 
 	<div class="common_list_con clearfix">
 		<div class="settle_con">
-            <div class="total_goods_count">共<em style="color: red">{{ order_obj.orderinfo_set.count }}</em>类商品;数量总数: <em style="color: red">{{ order_obj.orderinfo_set.get.goods_count }}</em>，总金额<b>{{order_obj.order_total}}元</b></div>
+            <div class="total_goods_count">共<em style="color: red">{{ order_obj.orderinfo_set.count }}</em>类商品;数量总数: <em style="color: red">{{ totalsnum }}</em>，总金额<b>{{order_obj.order_total}}元</b></div>
 
 			<div class="transit">运费：<b>10元</b></div>
 			<div class="total_pay">实付款：<b>{{ order_obj.order_total|myfilter:10}}</b></div>

@@ -11,6 +11,7 @@ ORDER_STATUS = (
     (5,"拒收"),
     (6,"已完成"),
 )
+ISCHECKED=((1,"是"),(0,"否"))
 class PayOrder(models.Model):
     order_number = models.CharField(max_length=40,unique=True,verbose_name="订单号")
     order_date = models.DateField(auto_now=True,verbose_name="订单创建时间")
@@ -42,3 +43,16 @@ class Cart(models.Model):
     class Meta:
         db_table = "cart"
         verbose_name_plural="购物车表"
+
+
+#卖家地址模型（loginuser表中的USER_STATUS=0）
+class UserAddress(models.Model):
+    uname=models.CharField(max_length=32,verbose_name="姓名")
+    addinfo=models.CharField(max_length=60,verbose_name="详细地址")
+    yinfo=models.CharField(max_length=10,verbose_name="邮编")
+    tel=models.CharField(max_length=11,verbose_name="电话号码")
+    ischecked=models.IntegerField(choices=ISCHECKED,verbose_name="是否默认")
+    user=models.ForeignKey(to=LoginUser,to_field="email",on_delete=models.CASCADE,verbose_name="买家")
+    class Meta:
+        db_table="Useraddress"
+        verbose_name_plural="详细地址表"

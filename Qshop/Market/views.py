@@ -85,7 +85,7 @@ def loginout(request):
     response.delete_cookie("status")
     del request.session["maketemail"]
     del request.session["status"]
-    return response
+    return HttpResponseRedirect("/maket/login/")
 
 #首页
 @loginvalid
@@ -144,55 +144,90 @@ def list(request,id,page=1):#用post方法来区别搜索商品
         new_goods=good_obj[:2]
     return render(request,"maket/list.html",locals())
 
-#立即购买
+#立即购买 //生成了订单;如果我是直接从购物车过来用post请求传值
 import uuid
 @loginvalid
 def placeorder(request):
-    v=10
-    #获取传过来的值
-    nums=request.GET.get("nums")
-    id=request.GET.get("goodsid")
-    email=request.COOKIES.get("maketemail")
-    # 商品信息
-    goods_obj = Goods.objects.get(id=id)
-    order_obj = PayOrder()
-    #如果商品id和卖家一样 都存在说明买的是同一个订单中的商品 且是未支付
-    oinfo_obj = OrderInfo.objects.filter(goods=goods_obj,store_id=goods_obj.user_id).first()
-    #判断合并条件是否符合
-    if oinfo_obj and oinfo_obj.order.order_staus==1:
-        #修改商品
-        oinfo_obj.goods_count = int(oinfo_obj.goods_count)+int(nums)
-        oinfo_obj.store_id=goods_obj.user_id #卖家
-        oinfo_obj.goods_total_price=float(oinfo_obj.goods_total_price)+float(goods_obj.Goods_price)*int(nums)
-        oinfo_obj.save()
-        #修改订单
-        order_obj=PayOrder.objects.filter(id=oinfo_obj.order_id).first()
-        order_obj.order_total=oinfo_obj.goods_total_price
-        order_obj.save()
-    else:
+    email = request.COOKIES.get("maketemail")
+    m=request.GET.get("goodsdata")
+    ua_obj = UserAddress.objects.filter(user_id=email, ischecked=1).first()
+    totalsnum=0
+    if m:
+        goodss=m.split(",") #得到商品列表
         #生成订单
-        order_obj.order_number="".join(str(uuid.uuid4()).split("-"))
-        print(order_obj.order_number)
-        order_obj.order_staus=1
-        order_obj.order_total=float(goods_obj.Goods_price)*int(nums)
-        print(order_obj.order_total)
-        order_obj.order_user_id=email #买家id
-        print(order_obj.order_user)
-        order_obj.save()#保存
-        #生成订单详细信息
-        oinfo_obj=OrderInfo()
-        oinfo_obj.order=order_obj
-        print(oinfo_obj.order)
-        oinfo_obj.goods=goods_obj
-        print(oinfo_obj.goods)
-        oinfo_obj.goods_price=goods_obj.Goods_price
-        oinfo_obj.store=goods_obj.user
-        print(oinfo_obj.store)
-        oinfo_obj.goods_count=int(nums)
-        oinfo_obj.goods_total_price=order_obj.order_total
-        oinfo_obj.ordermark=""
-        oinfo_obj.save()
-    return render(request,"maket/place_order.html",locals())
+        order_obj = PayOrder()
+        order_obj.order_number = "".join(str(uuid.uuid4()).split("-"))
+        order_obj.order_staus = 1 #订单状态未付款
+        order_obj.order_user_id=email
+        #取商品的数量和总金额
+        total_money=0
+        for i in goodss:
+            cart_obj=Cart.objects.filter(goods_id=int(i)).first()
+            total_money +=float(cart_obj.goods_total)
+            totalsnum +=int(cart_obj.goods_number)
+        order_obj.order_total=total_money
+        order_obj.save()
+        #生成订单详情表
+        for j in goodss:
+            oinfo_obj = OrderInfo()
+            g_obj=Goods.objects.filter(id=int(j)).first()
+            oinfo_obj.order=order_obj
+            oinfo_obj.goods=g_obj
+            oinfo_obj.store_id=g_obj.user_id#卖家邮箱
+            oinfo_obj.goods_price=g_obj.Goods_price #商品单价
+            oinfo_obj.goods_count=Cart.objects.filter(goods_id=int(j)).first().goods_number
+            oinfo_obj.goods_total_price=Cart.objects.filter(goods_id=int(j)).first().goods_total
+            oinfo_obj.ordermark=""
+            oinfo_obj.save()
+        #获取地址信息
+        return render(request, "maket/place_order.html", locals())
+    else:
+        v=10
+        #获取传过来的值
+        nums=request.GET.get("nums")
+        id=request.GET.get("goodsid")
+
+        # 商品信息
+        goods_obj = Goods.objects.get(id=id)
+        order_obj = PayOrder()
+        #如果商品id和卖家一样 都存在说明买的是同一个订单中的商品 且是未支付
+        oinfo_obj = OrderInfo.objects.filter(goods=goods_obj,store_id=goods_obj.user_id).first()
+        #判断合并条件是否符合
+        if oinfo_obj and oinfo_obj.order.order_staus==1:
+            #修改商品
+            oinfo_obj.goods_count = int(oinfo_obj.goods_count)+int(nums)
+            oinfo_obj.store_id=goods_obj.user_id #卖家
+            oinfo_obj.goods_total_price=float(oinfo_obj.goods_total_price)+float(goods_obj.Goods_price)*int(nums)
+            oinfo_obj.save()
+            #修改订单
+            order_obj=PayOrder.objects.filter(id=oinfo_obj.order_id).first()
+            order_obj.order_total=oinfo_obj.goods_total_price
+            order_obj.save()
+        else:
+            #生成订单
+            order_obj.order_number="".join(str(uuid.uuid4()).split("-"))
+            print(order_obj.order_number)
+            order_obj.order_staus=1
+            order_obj.order_total=float(goods_obj.Goods_price)*int(nums)
+            print(order_obj.order_total)
+            order_obj.order_user_id=email #买家id
+            print(order_obj.order_user)
+            order_obj.save()#保存
+            #生成订单详细信息
+            oinfo_obj=OrderInfo()
+            oinfo_obj.order=order_obj
+            print(oinfo_obj.order)
+            oinfo_obj.goods=goods_obj
+            print(oinfo_obj.goods)
+            oinfo_obj.goods_price=goods_obj.Goods_price
+            oinfo_obj.store=goods_obj.user
+            print(oinfo_obj.store)
+            oinfo_obj.goods_count=int(nums)
+            oinfo_obj.goods_total_price=order_obj.order_total
+            oinfo_obj.ordermark=""
+            oinfo_obj.save()
+            totalsnum=int(nums)
+        return render(request,"maket/place_order.html",locals())
 
 #支付宝付款码的生成
 from Qshop.settings import alipay
@@ -224,17 +259,80 @@ def pay_result(request):
         p_obj = PayOrder.objects.get(order_number=out_trade_no)
         p_obj.order_staus=2  #修改订单状态
         p_obj.save()
+        #删除购物车里支付了的订单对应的商品
+        o_obj=p_obj.orderinfo_set.all()
+        for i in o_obj:
+            c_obj=Cart.objects.filter(goods=i.goods)
+            if c_obj:
+                c_obj.delete()
         return render(request,"maket/payresult.html",locals())
 
 #用户中心
 def user_center_info(request):
+    email = request.COOKIES.get("maketemail")
+    ua_obj = UserAddress.objects.filter(user_id=email, ischecked=1).first()
+    return render(request,"maket/user_center_info.html",locals())
+#添加地址
+def user_center_site(request):
+    email=request.COOKIES.get("maketemail")
+    ua_obj=UserAddress.objects.filter(user_id=email,ischecked=1).first()
+    if request.method=="POST":
+        uname=request.POST.get("uname")
+        address=request.POST.get("address")
+        ynum=request.POST.get("ynum")
+        tel=request.POST.get("tel")
+        seadd=request.POST.get("setaddress")
+        if ua_obj:
+            #判断是否选中默认
+            if seadd=="1":#选中
+                #修改之前的地址
+                ua_obj.ischecked=0
+                ua_obj.save()
+                #增加新地址
+                uadd=UserAddress()
+                uadd.uname=uname
+                uadd.addinfo=address
+                uadd.ynum=ynum
+                uadd.tel=tel
+                uadd.ischecked=int(seadd)
+                uadd.user_id=email
+                uadd.save()
+            else:
+                # 增加新地址
+                uadd = UserAddress()
+                uadd.uname = uname
+                uadd.addinfo = address
+                uadd.ynum = ynum
+                uadd.tel = tel
+                uadd.ischecked = int(seadd)
+                uadd.user_id = email
+                uadd.save()
 
-    return render(request,"maket/user_center_info.html")
+        else:
+            uadd = UserAddress()
+            uadd.uname = uname
+            uadd.addinfo = address
+            uadd.ynum = ynum
+            uadd.tel = tel
+            uadd.ischecked = 1
+            uadd.user_id = email
+            uadd.save()
+        return render(request, "maket/user_center_site.html", locals())
+    else:
+        if ua_obj:
+            pass
+        else:
+            message="还没有写入地址信息，请在下面填写"
+        return render(request,"maket/user_center_site.html",locals())
 
 #用户订单数据
 def user_center_order(request):
+    email=request.COOKIES.get("maketemail")
+    print(email)
+    #查询所有订单
+    po_obj=PayOrder.objects.filter(order_user_id=email).all()
 
-    return  render(request,"maket/user_center_order.html")
+    return  render(request,"maket/user_center_order.html",locals())
 
 #购物车#找到属于自己的购物车
 def cart(request):
@@ -253,7 +351,7 @@ def add_cart(request):
     #数据格式
     result={"code":10000,"msg":"添加商品成功","goods_name":""}
     goods_id=request.POST.get("goods_id")
-    goods_count=request.POST.get("goods_count")
+    goods_count=request.POST.get("goods_count",1)
     goods_money=request.POST.get("goods_money")
     status=request.POST.get("status")
     user_email=request.COOKIES.get("maketemail")
@@ -266,9 +364,7 @@ def add_cart(request):
         if cart:
             if status=="1":
                 cart.goods_number=goods_count
-                print(goods_count)
                 cart.goods_total=goods_money
-                print(goods_money)
             else:
                 cart.goods_number +=1
                 cart.goods_total=int(cart.goods_number)*float(g_obj.Goods_price)
@@ -276,10 +372,28 @@ def add_cart(request):
         else:
             cart=Cart()
             cart.goods= g_obj
-            cart.goods_number = goods_count
+            if status=="1":
+                cart.goods_number = goods_count
+            else:
+                cart.goods_number =goods_count
             cart.goods_total=g_obj.Goods_price
             cart.cart_user = l_obj
             cart.save()
         result["goods_name"]=g_obj.Goods_name
         print(result)
+    return JsonResponse(result)
+
+#删除购物数据
+def delete_cart(request):
+    result={"code":10000,"msg":"","goodsname":""}
+    goods_id=request.GET.get("goods_id")
+    #删除购物表里的数据
+    g_obj=Cart.objects.get(goods_id=goods_id)
+    if g_obj:
+        g_obj.delete()
+        result["msg"]="删除数据成功"
+        result["goods_name"]=g_obj.goods.Goods_name
+    else:
+        result={"code":10001,"msg":"删除数据失败","goodsname":g_obj.goods.Goods_name}
+        pass
     return JsonResponse(result)

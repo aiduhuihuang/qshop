@@ -24,16 +24,16 @@
 			<ul>
 				<li><a href="/maket/user_center_info/" class="active">· 个人信息</a></li>
 				<li><a href="/maket/user_center_order/">· 全部订单</a></li>
-				<li><a href="user_center_site.html">· 收货地址</a></li>
+				<li><a href="/maket/user_center_site/">· 收货地址</a></li>
 			</ul>
 		</div>
 		<div class="right_content clearfix">
 				<div class="info_con clearfix">
 				<h3 class="common_title2">基本信息</h3>
 						<ul class="user_info_list">
-							<li><span>用户名：</span>18210569700</li>
-							<li><span>联系方式：</span>18210569700</li>
-							<li><span>联系地址：</span>北京市昌平区</li>			
+							<li><span>姓 名：</span>{{ ua_obj.uname }}</li>
+							<li><span>联系方式：</span>{{ ua_obj.tel }}</li>
+							<li><span>联系地址：</span>{{ ua_obj.addinfo }}</li>
 						</ul>
 				</div>
 				

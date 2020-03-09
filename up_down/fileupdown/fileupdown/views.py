@@ -32,10 +32,14 @@ def down(request):
 def download(request,id=0):
     print(id)
     the_file_name = settings.MEDIA_ROOT + "\\" + newlist[int(id)-1]
+    doc=str(newlist[int(id)-1]).split(".")[-1]
     print(the_file_name)
     file = open(the_file_name, 'rb')
     response = FileResponse(file)
-    response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    if doc.lower()!="mp4":
+        response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    else:
+        response['Content-Type']='video/mp4'
     response['Content-Disposition'] = 'attachment;filename="{0}"'.format(escape_uri_path(newlist[int(id)-1]))
     return response
 

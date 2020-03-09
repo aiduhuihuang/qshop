@@ -294,3 +294,14 @@ def person(request):
         else:
             return HttpResponseRedirect("/seller/login/")
 
+#订单信息
+def payorders(request,status=0):
+    if status=="0":
+        order_title="全部订单"
+    elif status=="2":
+        order_title = "已完成订单"
+    elif status=="3":
+        order_title = "进行中订单"
+    else:
+        order_title = "取消的订单"
+    return render(request,"seller/payoders.html",locals())

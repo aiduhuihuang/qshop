@@ -28,6 +28,8 @@ urlpatterns = [
    path("user_center_info/",user_center_info),
    #用户全部订单
    path("user_center_order/",user_center_order),
+   #用户地址
+   path("user_center_site/",user_center_site),
    #退出
    path("loginout/",loginout),
 
@@ -37,6 +39,8 @@ urlpatterns = [
    #回调处理结果
    path("payresult/",pay_result),
    path("add_cart/",add_cart),
+   #删除购物数据
+   path("delete_cart/",delete_cart),
 
 
 

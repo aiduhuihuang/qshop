@@ -2,14 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>文件下载</title>
 </head>
 <body>
+    <table cellspacing="10px" cellpadding="10px" border="2px">
+        <tr>
+            <th>文件名</th>
+            <th>操作</th>
+        </tr>
+         {% for foo in  files%}
+            <tr>
+                <td>{{ foo }}</td>
+                <td><a href="/down/{{forloop.counter }}/"><input type="button" value="下载文件"></input></a></td>
+            </tr>
+        {% endfor %}
+    </table>
+    <hr/>
     {% for foo in  files%}
         <a href="/down/{{forloop.counter }}/">{{ foo }}<button>下载</button></a><br>
     {% endfor %}
-
-
 
 </body>
 </html>

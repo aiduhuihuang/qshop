@@ -76,16 +76,18 @@
 			<a href="/maket/list/{{ foo.id }}/1/" class="goods_more fr" id="fruit_more" style="color: red">查看更多 ></a>
 		</div>
 		<div class="goods_con clearfix">
-			<div class="goods_banner fl"><img src="/static/maket/{{ foo.typeimg }}"></div>
+			<div class="goods_banner fl"><img src="/static/{{ foo.typeimg }}"></div>
             {%  if foo.goods_set.all %}
                 <ul class="goods_list fl">
                     {% for one in foo.goods_set.all%}
-                        {% if forloop.counter <= 4 %}
-                        <li>
-                        <h4><a href="/maket/detail/{{ one.id }}/">{{ one.Goods_name }}</a></h4>
-                        <a href="/maket/detail/{{ one.id }}/"><img src="/static/{{ one.Goods_img }}"></a>
-                        <div class="prize">¥ {{ one.Goods_price }}</div>
-                        </li>
+                        {% if one.Goods_status == 0 %}
+                            {% if forloop.counter <= 4 %}
+                            <li>
+                            <h4><a href="/maket/detail/{{ one.id }}/">{{ one.Goods_name }}</a></h4>
+                            <a href="/maket/detail/{{ one.id }}/"><img src="/static/{{ one.Goods_img }}"></a>
+                            <div class="prize">¥ {{ one.Goods_price }}</div>
+                            </li>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                 </ul>

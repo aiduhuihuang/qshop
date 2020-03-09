@@ -3,6 +3,9 @@
 {% block title %}
     购物车
 {% endblock %}
+{% block style %}
+     <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+{% endblock %}
 
 {% block contenttwo %}
     	<div class="search_bar clearfix">
@@ -36,12 +39,12 @@
 		<li class="col06">
 			<div class="num_add">
 				<a href="javascript:;" class="add fl">+</a>
-				<input type="text" class="num_show fl" value="{{ foo.goods_number }}">
+				<input type="text" class="num_show fl" disabled="disabled" value="{{ foo.goods_number }}">
 				<a href="javascript:;" class="minus fl">-</a>
 			</div>
 		</li>
 		<li class="col07">{{ foo.goods_total }}元</li>
-		<li class="col08"><a href="javascript:;">删除</a></li>
+		<li class="col08"><a href="javascript:;" class="btn btn-danger">删除</a></li>
 	</ul>
     {% endfor %}
 
@@ -49,7 +52,7 @@
 		<li class="col01"><input type="checkbox" name="" checked="" id="check_box"></li>
 		<li class="col02">全选</li>
 		<li class="col03">合计(不含运费)：<span>¥</span><em id="goodsmoney">{{ total.totalmoney }}</em><br>共计数量 &nbsp;<b id="goodscount">{{ total.totalcount }}</b></li>
-		<li class="col04"><a href="place_order.html">去结算</a></li>
+		<li class="col04"><a href="#" id="clearmoney">去结算</a></li>
 	</ul>
 {% endblock %}
 
@@ -108,9 +111,6 @@
 
      //
     //实现加号
-        //
-        //
-
     //循环  ，在函数里面进行ajax请求
     $(".add").click(
         function () {
@@ -140,16 +140,12 @@
                     error:function (error) {
                         alert("添加不成功")
                     }
-
                 }
             )
         }
     )
-
     //
     //实现减号
-    //
-    //
      $(".minus").click(
         function () {
             //获取了当前按钮的id
@@ -157,7 +153,6 @@
             //获取了num值
              var num = parseInt($(this).parents(".cart_list_td").find(".num_show").val());
             var  newnum=num-1;
-
             //num的值-1,钱也要减,且只能减到1
             if (newnum<=1){
                  newnum=1;
@@ -169,7 +164,6 @@
                 var newtotal=parseInt(newnum)*parseFloat($(this).parents(".cart_list_td").find(".col05").text());
                  $(this).parents(".cart_list_td").find(".col07").text(newtotal+"元");
             }
-            //调用add改变下面的值
             add()
             //进行ajax写入
              <!--ajax要进行的请求地址-->
@@ -182,15 +176,74 @@
                     type:"post",
                     data:send_data,
                     success:function (data) {
-                        {#console.log(data)#}
-                        {#alert("成功将商品【"+data["goods_name"]+"】添加至购物车")#}
                     },
                     error:function (error) {
                         alert("添加不成功")
                     }
-
                 }
             )
+        }
+    )
+    //实现删除
+    $(".btn-danger").click(
+        function () {
+            var id=$(this).parents(".cart_list_td").find(".goodscheck").attr("id");
+            var f=confirm("删除数据需谨慎,是否确认操作?")
+            if (f){
+                 var  url="/maket/delete_cart/?goods_id="+id;
+            $.ajax(
+                {
+                    url:url,
+                    type:"get",
+                    data:"",
+                    success:function (data) {
+                        {#console.log(data["msg"]+"商品:"+data["goodsname"])#}
+                        window.location.href="/maket/cart/";
+                    },
+                    error:function (error) {
+                        alert(data["msg"]+"商品:"+data["goodsname"])
+                    }
+                }
+            )
+            }
+        }
+    )
+
+    //提交订单，采用post传值
+    $("#clearmoney").click(
+        function () {
+            var goodss=[];
+            //循环判断是否选中
+             $(".goodscheck").each(
+                 function () {
+                     //选中就记录id的值
+                     if (this.checked){
+                         goodss.push($(this).parents(".cart_list_td").find(".goodscheck").attr("id"))
+                     }
+                 }
+             )
+            console.log(goodss);
+           <!--构建数据进行ajax请求-->
+            var url="/maket/place_order/?goodsdata="+goodss;
+           console.log(url)
+            window.location.href=url;
+            {#var senddata={"csrfmiddlewaretoken":"{{csrf_token}}","goodsdata":goodss};#}
+            {#$.ajax(#}
+            {#    {#}
+            {#        url:url,#}
+            {#        type:"post",#}
+            {#        traditional:true, //接受传数组的#}
+            {#        async : false,#}
+            {#        data:senddata,#}
+            {#        success:function (data) {#}
+            {#        },#}
+            {#        error:function (error) {#}
+            {#            alert("数据处理错误")#}
+            {#        }#}
+            {#        #}
+            {#    }#}
+            {#        #}
+            {#)#}
         }
     )
     </script>

@@ -16,7 +16,7 @@ class LoginUser(models.Model):
     age=models.IntegerField(verbose_name="年龄",null=True,blank=True)
     picture=models.ImageField(upload_to="img",default="img/tx.jpg", verbose_name="个人头像")
     gender=models.IntegerField(default=0,choices=GENDER_STATUS,verbose_name="性别")
-    address=models.TextField(verbose_name="地址",null=True,blank=True)
+    address=models.TextField(verbose_name="址地",null=True,blank=True)
     createtime=models.DateTimeField(auto_now=True,verbose_name="创建时间")
     user_status=models.IntegerField(default=0,choices=USER_STATUS,verbose_name="用户类型")
     isDelete=models.IntegerField(default=0,choices=ISDELETE_STATUS,verbose_name="是否删除") #否代表为没有删除,1代表删除
